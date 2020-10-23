@@ -43,9 +43,9 @@ public class WordCount {
 	    }
 	}
 
-	public static class TokenizerMapper extends Mapper<Object, Text, Text, DoubleArrayWritable>{
-		private final static DoubleWritable instanceClass = new DoubleWritable();
-		private final static DoubleWritable instanceDistance = new DoubleWritable();
+	public static class TokenizerMapper extends Mapper<Object, Text, Text, DoubleArrayWritable>{ // TODO rename
+		private final static DoubleArrayWritable instanceClass = new DoubleArrayWritable();
+		private final static DoubleArrayWritable instanceDistance = new DoubleArrayWritable();
 
 		private List<String> allTestInstances = new LinkedList<String>();
 		private Text word = new Text();
@@ -95,7 +95,7 @@ public class WordCount {
 		}
 	}
 
-	public static class IntSumReducer extends Reducer<Text,DoubleWritable,Text,DoubleWritable> {
+	public static class IntSumReducer extends Reducer<Text,DoubleWritable,Text,DoubleWritable> { // TODO rename
 		private DoubleWritable result = new DoubleWritable();
 		private double[][] classDistanceMatrix;
 		private int testInstancesLength;
@@ -107,10 +107,27 @@ public class WordCount {
 	        classDistanceMatrix = new double[testInstancesLength][k * 2];
 	    }
 		
-		public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
+		public void reduce(Text key, Iterable<DoubleArrayWritable> values, Context context) throws IOException, InterruptedException {
+		// public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
 			for (int test = 0; test < testInstancesLength; test++) { // TODO go through train?
 				// TODO rn im assuming that map has output sorted by distance and not class or something
+				// TODO check if sorted
 				
+				// add to list
+				List<String> allClassesAndDistances = new LinkedList<String>();
+
+				for (DoubleArrayWritable val : values) {
+					allClassesAndDistances.add(val.get());
+					// sum += val.get();
+				}
+
+				for (int i = 0; i < classDistanceMatrix[test].length; i++) {
+
+				}
+
+				// sort list
+
+				//
 			}
 			
 			int sum = 0;
@@ -118,7 +135,7 @@ public class WordCount {
 				sum += val.get();
 			}
 			result.set(sum);
-			context.write(key, result);
+			// context.write(key, result);
 		}
 		
 //		protected void cleanup(Context context) throws IOException, InterruptedException {
@@ -156,11 +173,16 @@ public class WordCount {
 	    conf.set("k", args[3]);
 		Job job = Job.getInstance(conf, "word count");
 		job.setJarByClass(WordCount.class);
+
 		job.setMapperClass(TokenizerMapper.class);
-		job.setCombinerClass(IntSumReducer.class);
+		// job.setCombinerClass(IntSumReducer.class); // TODO whats this do?
 		job.setReducerClass(IntSumReducer.class);
+
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(DoubleArrayWritable.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(DoubleWritable.class);
+		job.setOutputValueClass(DoubleArrayWritable.class);// TODO correct? should it be a single class? output f cleanup or reducer. OUTPUT of ceanup, reducer doesnt have to write
+
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[2]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
