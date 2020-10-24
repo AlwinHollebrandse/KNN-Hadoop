@@ -1,2 +1,4 @@
+/home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/KNNReducer.java
 /home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/KNNMapper.java
-/home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/WordCount.java
+/home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/KNN.java
+/home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/DoubleString.java
