@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class KNN {
 	public static void main(String[] args) throws Exception {
-		if (args.length != 4) { // TODO add check that instances of train and test are same length
+		if (args.length != 4) { // TODO add check that instances of train and test are same length for each data point
 	      System.out.printf("Usage: KNN <input dir that holds train data> <output dir> <test data file>  <k>\n");
 	      System.exit(-1);
 	    }

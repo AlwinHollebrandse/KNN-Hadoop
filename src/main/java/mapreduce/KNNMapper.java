@@ -45,16 +45,13 @@ public class KNNMapper extends Mapper<Object, Text, Text, DoubleString>{
                     distance += diff * diff;
                 }
 
-                // Add the total distance and corresponding car type for this row into the TreeMap with distance
-                // as key and type as value.
                 distance = Math.sqrt(distance);
                 String type = trainInstance.get(trainInstance.size() - 1);
                 while (KnnMap.containsKey(distance)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
                     distance += 0.000000001;
                 }
                 KnnMap.put(distance, type);
-                // Only K distances are required, so if the TreeMap contains over K entries, remove the last one
-                // which will be the highest distance number.
+
                 if (KnnMap.size() > k)
                 {
                     KnnMap.remove(KnnMap.lastKey());
@@ -62,7 +59,6 @@ public class KNNMapper extends Mapper<Object, Text, Text, DoubleString>{
 
             }
 
-            // Loop through the K key:values in the TreeMap
             for(Map.Entry<Double, String> entry : KnnMap.entrySet())
             {
                 Double knnDist = entry.getKey();
