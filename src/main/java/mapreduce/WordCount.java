@@ -91,19 +91,14 @@ public class WordCount {
 	        for(String testInstance : conf.get("testInstances").split("\n")) {
 	        	allTestInstances.add(testInstance);
 			}
-			System.out.println("allTestInstances.size(): " + allTestInstances.size());
 			k = Integer.parseInt(conf.get("k"));
 	    }
 
 		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-//			List<String> allTestInstances = Arrays.asList(value.toString().split("\n"));
-			System.out.println("value: " + value.toString());
-
 			List<String> allTrainInstances = Arrays.asList(value.toString().split("\n"));
 			System.out.println("allTrainInstances size: " + allTrainInstances.size());
-			System.out.println("allTrainInstances: " + allTrainInstances.toString());
 
-			for (int test = 0; test < allTestInstances.size(); test++) { // TODO go through train?
+			for (int test = 0; test < allTestInstances.size(); test++) {
 				TreeMap<Double, String> KnnMap = new TreeMap<Double, String>();
 				
 				List<String> testInstance = Arrays.asList(allTestInstances.get(test).split(","));
@@ -121,7 +116,12 @@ public class WordCount {
 
 					// Add the total distance and corresponding car type for this row into the TreeMap with distance
 					// as key and type as value.
-					KnnMap.put(Math.sqrt(distance), trainInstance.get(trainInstance.size() - 1));
+					distance = Math.sqrt(distance);
+					String type = trainInstance.get(trainInstance.size() - 1);
+					while (KnnMap.containsKey(distance)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
+						distance += 0.00000000000001;
+					}
+					KnnMap.put(distance, type);
 					// Only K distances are required, so if the TreeMap contains over K entries, remove the last one
 					// which will be the highest distance number.
 					if (KnnMap.size() > k)
@@ -130,18 +130,15 @@ public class WordCount {
 					}
 
 				}
-				System.out.println("map test: " + test + ", KnnMap: " + KnnMap.toString());
 
 				// Loop through the K key:values in the TreeMap
 				for(Map.Entry<Double, String> entry : KnnMap.entrySet())
 				{
 					Double knnDist = entry.getKey();
 					String knntype = entry.getValue();
-					// distanceAndType is the instance of DoubleString declared aerlier
 					distanceAndType.set(knnDist, knntype);
 					testKey.set(Integer.toString(test));
-					// Write to context a NullWritable as key and distanceAndType as value
-					context.write(testKey, distanceAndType); // TODO was NullWritable
+					context.write(testKey, distanceAndType);
 				}
 			}
 		}
@@ -172,12 +169,14 @@ public class WordCount {
 			// Loop through these
 			for (DoubleString val : values)
 			{
-				// System.out.println();
 				String type = val.getType();
 				double tDist = val.getDistance();
 				
 				// Populate another TreeMap with the distance and model information extracted from the
 				// DoubleString objects and trim it to size K as before.
+				while (KnnMap.containsKey(tDist)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
+					tDist += 0.000000001;
+				}
 				KnnMap.put(tDist, type);
 				if (KnnMap.size() > k)
 				{
@@ -192,10 +191,8 @@ public class WordCount {
 		protected void cleanup(Context context) throws IOException, InterruptedException {
 			// This section determines which of the K values (models) in the TreeMap occurs most frequently
 			// by means of constructing an intermediate ArrayList and HashMap.
-			System.out.println("cleanup listOfKnnMaps size: " + listOfKnnMaps.size()); // should be size of test set
 			for (int test = 0; test < testInstancesLength; test++) {				
 				TreeMap<Double, String> KnnMap = listOfKnnMaps.get(test);
-				System.out.println("reduce test: " + test + ", KnnMap: " + KnnMap.toString());
 
 				// A List of all the values in the TreeMap.
 				List<String> knnList = new ArrayList<String>(KnnMap.values());
@@ -228,11 +225,8 @@ public class WordCount {
 					}
 				}
 					
-				// Finally write to context another NullWritable as key and the most common model just counted as value. // TODO nullwritable comments
 				testKey.set("Test Index: " + Integer.toString(test) + ", predictedClass: ");
-				// Write to context a NullWritable as key and distanceAndType as value
 				context.write(testKey, new Text(mostCommonType)); // Use this line to produce a single classification // TODO add real class as well?
-	//			context.write(NullWritable.get(), new Text(KnnMap.toString()));	// Use this line to see all K nearest neighbours and distances
 			}
 		}
 	}
@@ -248,8 +242,6 @@ public class WordCount {
 	    conf.set("testInstances", testInstacesString);
         String[] allTestInstancesTemp = testInstacesString.split("\n");
 		conf.set("testInstancesLength",  Integer.toString(allTestInstancesTemp.length));
-		System.out.println("HERE: " + allTestInstancesTemp.length);
-		// System.out.println("testInstacesString: \n" + testInstacesString);
 
 	    conf.set("k", args[3]);
 		Job job = Job.getInstance(conf, "testKey count");
@@ -262,7 +254,7 @@ public class WordCount {
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(DoubleString.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);// TODO correct? should it be a single class? output f cleanup or reducer. OUTPUT of ceanup, reducer doesnt have to write
+		job.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
