@@ -50,7 +50,7 @@ public class KNNMapper extends Mapper<Object, Text, Text, DoubleString>{
                 distance = Math.sqrt(distance);
                 String type = trainInstance.get(trainInstance.size() - 1);
                 while (KnnMap.containsKey(distance)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
-                    distance += 0.00000000000001;
+                    distance += 0.000000001;
                 }
                 KnnMap.put(distance, type);
                 // Only K distances are required, so if the TreeMap contains over K entries, remove the last one

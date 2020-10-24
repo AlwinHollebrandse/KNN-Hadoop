@@ -1,5 +1,4 @@
 package mapreduce;
-//package Hadoop.MapReduce;
 // PATH=$PATH:$HOME/hadoop-3.3.0/bin
 
 import org.apache.hadoop.conf.Configuration;
@@ -9,9 +8,9 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.File;  // Import the File class
-import java.io.FileNotFoundException;  // Import this class to handle errors
-import java.util.Scanner; // Import the Scanner class to read text files
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class KNN {
 	public static void main(String[] args) throws Exception {
@@ -41,6 +40,7 @@ public class KNN {
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		// TODO add timing
 	}
 	
 	public static String getTestInstances(String testFile) throws FileNotFoundException {
@@ -54,8 +54,4 @@ public class KNN {
 		myReader.close();
 		return result.toString();
 	}
-	
-	// https://stackoverflow.com/questions/25432598/what-is-the-mapper-of-reducer-setup-used-for/25450627
-	// https://stackoverflow.com/questions/28914596/mapreduce-output-arraywritable
-//	https://github.com/matt-hicks/MapReduce-KNN/blob/master/KnnPattern.java
 }
