@@ -12,12 +12,12 @@ import org.apache.hadoop.io.WritableComparable;
 // This example only implements the minimum required methods to make this job run. To be
 // deployed robustly is should include ToString(), hashCode(), WritableComparable interface
 // if this object was intended to be used as a key etc.
-public class DoubleString implements WritableComparable<DoubleString>
+public class DoubleInteger implements WritableComparable<DoubleInteger>
 {
     private Double distance = 0.0;
-    private String type = null;
+    private Integer type = null;
 
-    public void set(Double lhs, String rhs)
+    public void set(Double lhs, Integer rhs)
     {
         distance = lhs;
         type = rhs;
@@ -28,7 +28,7 @@ public class DoubleString implements WritableComparable<DoubleString>
         return distance;
     }
     
-    public String getType()
+    public Integer getType()
     {
         return type;
     }
@@ -37,19 +37,19 @@ public class DoubleString implements WritableComparable<DoubleString>
     public void readFields(DataInput in) throws IOException
     {
         distance = in.readDouble();
-        type = in.readUTF();
+        type = in.readInt();
     }
     
     @Override
     public void write(DataOutput out) throws IOException
     {
         out.writeDouble(distance);
-        out.writeUTF(type);
+        out.writeInt(type);
     }
     
     @Override
-    public int compareTo(DoubleString o)
+    public int compareTo(DoubleInteger o)
     {
-        return (this.type).compareTo(o.type);
+        return (this.type).compareTo(o.type); // TODO why not compare distance?
     }
 }

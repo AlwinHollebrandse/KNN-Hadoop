@@ -3,7 +3,7 @@ package mapreduce;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -27,19 +27,21 @@ public class KNN {
 
 	    conf.set("k", args[3]);
 		Job job = Job.getInstance(conf, "testKey count");
+		// job.getConfiguration().setInt(LINES_PER_MAP, 300); // TODO doesnt work
 		job.setJarByClass(KNN.class);
 
 		job.setMapperClass(KNNMapper.class);
 		job.setReducerClass(KNNReducer.class);
 
-		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(DoubleString.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
+		job.setMapOutputKeyClass(IntWritable.class); // TODO int writable?
+		job.setMapOutputValueClass(DoubleInteger.class);
+		job.setOutputKeyClass(IntWritable.class);
+		job.setOutputValueClass(IntWritable.class);
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		// TODO add accuracy computing
 		// TODO add timing
 	}
 	

@@ -9,12 +9,13 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class KNNMapper extends Mapper<Object, Text, Text, DoubleString>{
-    private DoubleString distanceAndType = new DoubleString();
+public class KNNMapper extends Mapper<Object, Text, IntWritable, DoubleInteger>{
+    private DoubleInteger distanceAndType = new DoubleInteger();
     private List<String> allTestInstances = new LinkedList<String>();
-    private Text testKey = new Text();
+    private IntWritable testKey = new IntWritable();
     private int k;
     
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -30,7 +31,7 @@ public class KNNMapper extends Mapper<Object, Text, Text, DoubleString>{
         // System.out.println("allTrainInstances size: " + allTrainInstances.size());
 
         for (int test = 0; test < allTestInstances.size(); test++) {
-            TreeMap<Double, String> KnnMap = new TreeMap<Double, String>();
+            TreeMap<Double, Integer> KnnMap = new TreeMap<Double, Integer>();
             
             List<String> testInstance = Arrays.asList(allTestInstances.get(test).split(","));
             
@@ -46,7 +47,7 @@ public class KNNMapper extends Mapper<Object, Text, Text, DoubleString>{
                 }
 
                 distance = Math.sqrt(distance);
-                String type = trainInstance.get(trainInstance.size() - 1);
+                Integer type = Integer.parseInt(trainInstance.get(trainInstance.size() - 1));
                 while (KnnMap.containsKey(distance)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
                     distance += 0.000000001;
                 }
@@ -59,12 +60,12 @@ public class KNNMapper extends Mapper<Object, Text, Text, DoubleString>{
 
             }
 
-            for(Map.Entry<Double, String> entry : KnnMap.entrySet())
+            for(Map.Entry<Double, Integer> entry : KnnMap.entrySet())
             {
                 Double knnDist = entry.getKey();
-                String knntype = entry.getValue();
+                Integer knntype = entry.getValue();
                 distanceAndType.set(knnDist, knntype);
-                testKey.set(Integer.toString(test));
+                testKey.set(test);
                 context.write(testKey, distanceAndType);
             }
         }
