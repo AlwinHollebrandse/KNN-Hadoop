@@ -28,15 +28,15 @@ public class KNN {
 		conf.set("testInstancesLength",  Integer.toString(allTestInstancesTemp.length));
 
 	    conf.set("k", args[3]);
-		Job job = Job.getInstance(conf, "testKey count");
+		Job job = Job.getInstance(conf, "KNN");
 		// job.getConfiguration().setInt(LINES_PER_MAP, 300); // TODO doesnt work
 		job.setJarByClass(KNN.class);
 
 		job.setMapperClass(KNNMapper.class);
 		job.setReducerClass(KNNReducer.class);
 
-		job.setMapOutputKeyClass(IntWritable.class); // TODO int writable?
-		job.setMapOutputValueClass(DoubleInteger.class);
+		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputValueClass(DoubleIntegerTwoDArrayWritable.class);
 		job.setOutputKeyClass(IntWritable.class);
 		job.setOutputValueClass(IntWritable.class);
 

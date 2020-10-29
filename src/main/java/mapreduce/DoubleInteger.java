@@ -6,12 +6,28 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
 
-// WritableComparable class for a paired Double and String (distance and type)
-// This is a custom class for MapReduce to pass a double and a String through context
+
+import org.apache.hadoop.io.ArrayWritable;
+import org.apache.hadoop.io.Writable;
+// import org.apache.hadoop.io.TwoDArrayWritable;
+
+// public class DoubleIntegerTwoDArrayWritable implements TwoDArrayWritable {
+//     public DoubleIntegerTwoDArrayWritable() { super(DoubleInteger.class); }
+// }
+
+
+public class DoubleIntegerArrayWritable extends ArrayWritable implements Writable {
+    public DoubleIntegerArrayWritable() { super(DoubleInteger.class); }
+}
+
+public class DoubleIntegerArrayArrayWritable extends ArrayWritable implements Writable {
+    public DoubleIntegerArrayArrayWritable() { super(DoubleIntegerArrayWritable.class); }
+}
+
+
+// WritableComparable class for a paired Double and Integer (distance and type)
+// This is a custom class for MapReduce to pass a double and an Integer through context
 // as one serializable object.
-// This example only implements the minimum required methods to make this job run. To be
-// deployed robustly is should include ToString(), hashCode(), WritableComparable interface
-// if this object was intended to be used as a key etc.
 public class DoubleInteger implements WritableComparable<DoubleInteger>
 {
     private Double distance = 0.0;
@@ -51,5 +67,10 @@ public class DoubleInteger implements WritableComparable<DoubleInteger>
     public int compareTo(DoubleInteger o)
     {
         return (this.type).compareTo(o.type); // TODO why not compare distance?
+    }
+
+    @Override
+    public String toString() {
+        return Double.toString(distance) + " " + Integer.toString(type);
     }
 }

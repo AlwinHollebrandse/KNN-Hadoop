@@ -12,8 +12,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class KNNMapper extends Mapper<Object, Text, IntWritable, DoubleInteger>{
-    private DoubleInteger distanceAndType = new DoubleInteger();
+public class KNNMapper extends Mapper<Object, Text, IntWritable, DoubleIntegerTwoDArrayWritable> {
+    private DoubleIntegerTwoDArrayWritable allDistanceAndTypes = new DoubleIntegerTwoDArrayWritable();
+    // private DoubleInteger distanceAndType = new DoubleInteger();
     private List<String> allTestInstances = new LinkedList<String>();
     private IntWritable testKey = new IntWritable();
     private int k;
@@ -27,8 +28,8 @@ public class KNNMapper extends Mapper<Object, Text, IntWritable, DoubleInteger>{
     }
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+        DoubleInteger[][] distanceAndTypeArray = new DoubleInteger[allTestInstances.size()][k];
         List<String> allTrainInstances = Arrays.asList(value.toString().split("\n"));
-        // System.out.println("allTrainInstances size: " + allTrainInstances.size());
 
         for (int test = 0; test < allTestInstances.size(); test++) {
             TreeMap<Double, Integer> KnnMap = new TreeMap<Double, Integer>();
@@ -60,14 +61,29 @@ public class KNNMapper extends Mapper<Object, Text, IntWritable, DoubleInteger>{
 
             }
 
-            for(Map.Entry<Double, Integer> entry : KnnMap.entrySet())
+            int i = 0;
+            for(Map.Entry<Double, Integer> entry : KnnMap.entrySet()) // TODO make it so its 1 write per mapper. ie make it write [n][k]
             {
                 Double knnDist = entry.getKey();
                 Integer knntype = entry.getValue();
+                DoubleInteger distanceAndType = new DoubleInteger();
                 distanceAndType.set(knnDist, knntype);
-                testKey.set(test);
-                context.write(testKey, distanceAndType);
+                distanceAndTypeArray[test][i] = distanceAndType;
+                i++;
             }
+
+            while (i < k) {
+                DoubleInteger distanceAndType = new DoubleInteger();
+                distanceAndType.set(Double.MAX_VALUE, -1);
+                distanceAndTypeArray[test][i] = distanceAndType;
+                i++;
+            }
+
+            System.out.println("MAPPER: " + Arrays.toString(distanceAndTypeArray[0]));
         }
+
+        testKey.set(0); // TODO rename
+        allDistanceAndTypes.set(distanceAndTypeArray);
+        context.write(testKey, allDistanceAndTypes);
     }
 }

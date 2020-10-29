@@ -13,7 +13,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class KNNReducer extends Reducer<IntWritable,DoubleInteger,IntWritable,IntWritable> {
+public class KNNReducer extends Reducer<IntWritable,DoubleIntegerTwoDArrayWritable,IntWritable,IntWritable> {
     private IntWritable actualType = new IntWritable();
     private IntWritable predictedType = new IntWritable();
     private List<String> allTestInstances = new LinkedList<String>();
@@ -35,26 +35,31 @@ public class KNNReducer extends Reducer<IntWritable,DoubleInteger,IntWritable,In
         }
     }
     
-    public void reduce(IntWritable key, Iterable<DoubleInteger> values, Context context) throws IOException, InterruptedException {
+    public void reduce(IntWritable key, DoubleIntegerTwoDArrayWritable values, Context context) throws IOException, InterruptedException {
 
         TreeMap<Double, Integer> KnnMap = new TreeMap<Double, Integer>();
 
-        for (DoubleInteger val : values)
-        {
-            Integer type = val.getType();
-            double tDist = val.getDistance();
-            
-            while (KnnMap.containsKey(tDist)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
-                tDist += 0.000000001;
-            }
-            KnnMap.put(tDist, type);
-            if (KnnMap.size() > k)
+        // DoubleIntegerTwoDArrayWritable
+        for (int test = 0; test < allTestInstances.size(); test++) {
+            // values[test]
+        // testInstaceArray = 
+            for (DoubleInteger val : values.get()[test])
             {
-                KnnMap.remove(KnnMap.lastKey());
+                Integer type = val.getType();
+                double tDist = val.getDistance();
+                
+                while (KnnMap.containsKey(tDist)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
+                    tDist += 0.000000001;
+                }
+                KnnMap.put(tDist, type);
+                if (KnnMap.size() > k)
+                {
+                    KnnMap.remove(KnnMap.lastKey());
+                }
             }
+            
+            listOfKnnMaps.set(Integer.parseInt(key.toString()), KnnMap); // TODO could add and remove that step from setup
         }
-        
-        listOfKnnMaps.set(Integer.parseInt(key.toString()), KnnMap);
     }
     
     protected void cleanup(Context context) throws IOException, InterruptedException {
