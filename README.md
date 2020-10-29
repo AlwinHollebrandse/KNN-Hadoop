@@ -26,11 +26,12 @@ The kNN call (getKNNForInstance) is computed as follows: for a given dataset ins
 ## Results:
 The following times were computed by averaging the run CPU times (in ms) for each of the provided dataset 3 times with a k of value 5. It should be noted that for this experiment, the test dataset was identical to the training dataset. This was done to match the previous KNN experiments. However, this code has no method to ignore a distance if the instance of the training and test class were identical. This resulted in the closest neighbor for each test point being itself. However, this would never be an issue with a proper train test data split.
  
-| -np: | large | medium | small |
-| --- | --- | --- | --- |
-| 1 | 169452.3333 | 10587.66667 | 266 |
-| 2 | 88465.33333 | 5428 | 256.6666667 |
-| 4 | 19592 | 2941.333333 | 263.3333333 |
-| 8 | TODO | 1678.666667 | 267 |
-| 16 | 13622.33333 | 1081 | 295.3333333 |
- 
+| dataset: | Time (ms) | Accuracy |
+| --- | --- | --- |
+| small | 1512 | 0.869047619047619 |
+| medium | 151589 | 0.65659452837893 |
+| large | Too long | should be the same as the other KNNs |
+| KEEL | Too Long | ? |
+
+ ## Speedups
+ There is a branch "lessContextWrites" on this github that attempted to increase the speedup by changing what was written to the context for each mapper. The other version in question had each mapper write tot eh context once instead of k times like this version does. However, it ended up being slower than the master version of the code.
