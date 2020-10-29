@@ -29,7 +29,6 @@ public class KNN {
 
 	    conf.set("k", args[3]);
 		Job job = Job.getInstance(conf, "KNN");
-		// job.getConfiguration().setInt(LINES_PER_MAP, 300); // TODO doesnt work
 		job.setJarByClass(KNN.class);
 
 		job.setMapperClass(KNNMapper.class);
@@ -67,7 +66,7 @@ public class KNN {
 					while (myFileReader.hasNextLine()) {
 						String currentLine = myFileReader.nextLine();
 						char actualType = currentLine.charAt(0);	
-						char predictedType = currentLine.charAt(currentLine.length() - 1); // TODO is this \n or the number?
+						char predictedType = currentLine.charAt(currentLine.length() - 1);
 						if (actualType == predictedType) {
 							numberCorrect++;
 						}

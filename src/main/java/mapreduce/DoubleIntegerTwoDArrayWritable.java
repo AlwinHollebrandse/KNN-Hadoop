@@ -3,7 +3,7 @@ package mapreduce;
 import org.apache.hadoop.io.TwoDArrayWritable;
 import org.apache.hadoop.io.Writable;
 
-public class DoubleIntegerTwoDArrayWritable extends TwoDArrayWritable implements Writable{ // TODO implenments?
+public class DoubleIntegerTwoDArrayWritable extends TwoDArrayWritable implements Writable{
     public DoubleIntegerTwoDArrayWritable() { super(DoubleInteger.class); }
 
     public DoubleInteger[][] getAsDoubleInteger2DArray() {

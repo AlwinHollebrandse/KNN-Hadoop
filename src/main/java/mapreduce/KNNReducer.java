@@ -23,8 +23,6 @@ public class KNNReducer extends Reducer<IntWritable,DoubleIntegerTwoDArrayWritab
 
 
     protected void setup(Context context) throws IOException, InterruptedException {
-        System.out.println("HERE1?");
-
         Configuration conf = context.getConfiguration();
         testInstancesLength = Integer.parseInt(conf.get("testInstancesLength"));
         for(String testInstance : conf.get("testInstances").split("\n")) {
@@ -38,22 +36,11 @@ public class KNNReducer extends Reducer<IntWritable,DoubleIntegerTwoDArrayWritab
     }
     
     public void reduce(IntWritable key, Iterable<DoubleIntegerTwoDArrayWritable> values, Context context) throws IOException, InterruptedException {
-        System.out.println("HERE2?");
-        // DoubleIntegerTwoDArrayWritable
-        for (int test = 0; test < allTestInstances.size(); test++) {
-            // System.out.println("REDUCER: " + Arrays.toString(values.getAsDoubleInteger2DArray()[test]));
-            TreeMap<Double, Integer> KnnMap = new TreeMap<Double, Integer>();
-
-            for (DoubleIntegerTwoDArrayWritable val : values) {
-                System.out.println("REDUCER: " + test + ", " + Arrays.toString(val.getAsDoubleInteger2DArray()[test])); // TODO can only be iterated over once?
-
-                // values[test]
-                // testInstaceArray = 
-                // DoubleInteger[][] temp = values.getAsDoubleInteger2DArray();
+        for (DoubleIntegerTwoDArrayWritable val : values) {
+            for (int test = 0; test < allTestInstances.size(); test++) {
+                TreeMap<Double, Integer> KnnMap = listOfKnnMaps.get(test);
                 for (DoubleInteger pair : val.getAsDoubleInteger2DArray()[test])
                 {
-                    System.out.println("GETTING PAIR for " + test);
-
                     Integer type = pair.getType();
                     double tDist = pair.getDistance();
                     
@@ -66,16 +53,14 @@ public class KNNReducer extends Reducer<IntWritable,DoubleIntegerTwoDArrayWritab
                         KnnMap.remove(KnnMap.lastKey());
                     }
                 }
+                listOfKnnMaps.set(test, KnnMap);        
             }
-            System.out.println("REDUCER ADDING KNNTREE: " + test + ", " + KnnMap.toString());
-            listOfKnnMaps.set(test, KnnMap); // TODO could add and remove that step from setup                
         }
     }
     
     protected void cleanup(Context context) throws IOException, InterruptedException {
         for (int test = 0; test < testInstancesLength; test++) {				
             TreeMap<Double, Integer> KnnMap = listOfKnnMaps.get(test);
-            System.out.println("CLEANUP: " + KnnMap.toString());
 
             List<Integer> knnList = new ArrayList<Integer>(KnnMap.values());
 
@@ -104,11 +89,10 @@ public class KNNReducer extends Reducer<IntWritable,DoubleIntegerTwoDArrayWritab
                 }
             }
                 
-            // actualType.set("Test Index: " + Integer.toString(test) + ", predictedClass: ");
             List<String> testInstance = Arrays.asList(allTestInstances.get(test).split(","));
             actualType.set(Integer.parseInt(testInstance.get(testInstance.size() - 1)));
             predictedType.set(mostCommonType);
-            context.write(actualType, predictedType); // TODO add real class as well? // TODO should be int writable?
+            context.write(actualType, predictedType);
         }
     }
 }
