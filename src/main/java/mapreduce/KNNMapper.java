@@ -30,6 +30,7 @@ public class KNNMapper extends Mapper<Object, Text, IntWritable, DoubleIntegerTw
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
         DoubleInteger[][] distanceAndTypeArray = new DoubleInteger[allTestInstances.size()][k];
         List<String> allTrainInstances = Arrays.asList(value.toString().split("\n"));
+        // System.out.println("allTrainInstances size: " + allTrainInstances.size());
 
         for (int test = 0; test < allTestInstances.size(); test++) {
             TreeMap<Double, Integer> KnnMap = new TreeMap<Double, Integer>();
@@ -78,9 +79,8 @@ public class KNNMapper extends Mapper<Object, Text, IntWritable, DoubleIntegerTw
                 distanceAndTypeArray[test][i] = distanceAndType;
                 i++;
             }
-
-            System.out.println("MAPPER: " + Arrays.toString(distanceAndTypeArray[0]));
         }
+        System.out.println("MAPPER: " + Arrays.toString(distanceAndTypeArray[0]));
 
         testKey.set(0); // TODO rename
         allDistanceAndTypes.set(distanceAndTypeArray);

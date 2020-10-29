@@ -1,4 +1,5 @@
+/home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/DoubleIntegerTwoDArrayWritable.java
 /home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/KNNReducer.java
 /home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/KNNMapper.java
+/home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/DoubleInteger.java
 /home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/KNN.java
-/home/alwinhollebrandse/eclipse-workspace-java/mapreduce/src/main/java/mapreduce/DoubleString.java

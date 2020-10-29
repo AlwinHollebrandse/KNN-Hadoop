@@ -23,6 +23,8 @@ public class KNNReducer extends Reducer<IntWritable,DoubleIntegerTwoDArrayWritab
 
 
     protected void setup(Context context) throws IOException, InterruptedException {
+        System.out.println("HERE1?");
+
         Configuration conf = context.getConfiguration();
         testInstancesLength = Integer.parseInt(conf.get("testInstancesLength"));
         for(String testInstance : conf.get("testInstances").split("\n")) {
@@ -35,36 +37,45 @@ public class KNNReducer extends Reducer<IntWritable,DoubleIntegerTwoDArrayWritab
         }
     }
     
-    public void reduce(IntWritable key, DoubleIntegerTwoDArrayWritable values, Context context) throws IOException, InterruptedException {
-
-        TreeMap<Double, Integer> KnnMap = new TreeMap<Double, Integer>();
-
+    public void reduce(IntWritable key, Iterable<DoubleIntegerTwoDArrayWritable> values, Context context) throws IOException, InterruptedException {
+        System.out.println("HERE2?");
         // DoubleIntegerTwoDArrayWritable
         for (int test = 0; test < allTestInstances.size(); test++) {
-            // values[test]
-        // testInstaceArray = 
-            for (DoubleInteger val : values.get()[test])
-            {
-                Integer type = val.getType();
-                double tDist = val.getDistance();
-                
-                while (KnnMap.containsKey(tDist)) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
-                    tDist += 0.000000001;
-                }
-                KnnMap.put(tDist, type);
-                if (KnnMap.size() > k)
+            // System.out.println("REDUCER: " + Arrays.toString(values.getAsDoubleInteger2DArray()[test]));
+            TreeMap<Double, Integer> KnnMap = new TreeMap<Double, Integer>();
+
+            for (DoubleIntegerTwoDArrayWritable val : values) {
+                System.out.println("REDUCER: " + test + ", " + Arrays.toString(val.getAsDoubleInteger2DArray()[test])); // TODO can only be iterated over once?
+
+                // values[test]
+                // testInstaceArray = 
+                // DoubleInteger[][] temp = values.getAsDoubleInteger2DArray();
+                for (DoubleInteger pair : val.getAsDoubleInteger2DArray()[test])
                 {
-                    KnnMap.remove(KnnMap.lastKey());
+                    System.out.println("GETTING PAIR for " + test);
+
+                    Integer type = pair.getType();
+                    double tDist = pair.getDistance();
+                    
+                    while (KnnMap.containsKey(tDist) && tDist != Double.MAX_VALUE) { // NOTE needed to handle duplicate distances as the tree wouldnt add them
+                        tDist += 0.000000001;
+                    }
+                    KnnMap.put(tDist, type);
+                    if (KnnMap.size() > k)
+                    {
+                        KnnMap.remove(KnnMap.lastKey());
+                    }
                 }
             }
-            
-            listOfKnnMaps.set(Integer.parseInt(key.toString()), KnnMap); // TODO could add and remove that step from setup
+            System.out.println("REDUCER ADDING KNNTREE: " + test + ", " + KnnMap.toString());
+            listOfKnnMaps.set(test, KnnMap); // TODO could add and remove that step from setup                
         }
     }
     
     protected void cleanup(Context context) throws IOException, InterruptedException {
         for (int test = 0; test < testInstancesLength; test++) {				
             TreeMap<Double, Integer> KnnMap = listOfKnnMaps.get(test);
+            System.out.println("CLEANUP: " + KnnMap.toString());
 
             List<Integer> knnList = new ArrayList<Integer>(KnnMap.values());
 

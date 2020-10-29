@@ -7,22 +7,22 @@ import java.io.IOException;
 import org.apache.hadoop.io.WritableComparable;
 
 
-import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.Writable;
-// import org.apache.hadoop.io.TwoDArrayWritable;
+// import org.apache.hadoop.io.ArrayWritable;
+// import org.apache.hadoop.io.Writable;
+// // import org.apache.hadoop.io.TwoDArrayWritable;
 
-// public class DoubleIntegerTwoDArrayWritable implements TwoDArrayWritable {
-//     public DoubleIntegerTwoDArrayWritable() { super(DoubleInteger.class); }
+// // public class DoubleIntegerTwoDArrayWritable implements TwoDArrayWritable {
+// //     public DoubleIntegerTwoDArrayWritable() { super(DoubleInteger.class); }
+// // }
+
+
+// public class DoubleIntegerArrayWritable extends ArrayWritable implements Writable {
+//     public DoubleIntegerArrayWritable() { super(DoubleInteger.class); }
 // }
 
-
-public class DoubleIntegerArrayWritable extends ArrayWritable implements Writable {
-    public DoubleIntegerArrayWritable() { super(DoubleInteger.class); }
-}
-
-public class DoubleIntegerArrayArrayWritable extends ArrayWritable implements Writable {
-    public DoubleIntegerArrayArrayWritable() { super(DoubleIntegerArrayWritable.class); }
-}
+// public class DoubleIntegerArrayArrayWritable extends ArrayWritable implements Writable {
+//     public DoubleIntegerArrayArrayWritable() { super(DoubleIntegerArrayWritable.class); }
+// }
 
 
 // WritableComparable class for a paired Double and Integer (distance and type)
